@@ -1,4 +1,4 @@
-public class IF implements RobotProgramNode{
+public class IF extends STMT{
     @Override
     public void execute(Robot robot) {
 

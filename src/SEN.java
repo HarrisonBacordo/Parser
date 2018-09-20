@@ -1,4 +1,4 @@
-public class SEN implements RobotProgramNode{
+public class SEN extends EXP{
     @Override
     public void execute(Robot robot) {
 

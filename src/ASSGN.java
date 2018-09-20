@@ -1,4 +1,4 @@
-public class ASSGN implements RobotProgramNode{
+public class ASSGN extends STMT{
     @Override
     public void execute(Robot robot) {
 

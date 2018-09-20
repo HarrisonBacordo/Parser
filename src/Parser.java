@@ -18,13 +18,6 @@ public class Parser {
      */
     static RobotProgramNode parseFile(File code) {
         Scanner scan = null;
-        Map<String, Pattern> loopMap = new HashMap<>();
-        Map<String, Pattern> ifMap = new HashMap<>();
-        Map<String, Pattern> whileMap = new HashMap<>();
-        Map<String, Pattern> actMap = new HashMap<>();
-        Map<String, Pattern> senMap = new HashMap<>();
-        Map<String, Pattern> opMap = new HashMap<>();
-        Map<String, Pattern> relopMap = new HashMap<>();
 
 
         try {
@@ -87,8 +80,16 @@ public class Parser {
         System.out.println("Done");
     }
 
+//    Constants
+    static Pattern LOOP_TERMINAL = Pattern.compile("loop");
+    static Pattern IF_ENTRY_TERMINAL = Pattern.compile("if");
+    static Pattern IF_INTERMEDIATE_TERMINALS = Pattern.compile("elif|else");
+    static Pattern WHILE_TERMINAL = Pattern.compile("while");
+    static Pattern ACT_TERMINALS = Pattern.compile("move|turnL|turnR|turnAround|shieldOn|shieldOff|takeFuel|wait");
+    static Pattern SEN_TERMINALS = Pattern.compile("fuelLeft|oppLR|oppFB|numBarrels|barrelLR|barrelFB|wallDist");
+    static Pattern OP_TERMINALS = Pattern.compile("add|sub|mul|div");
+    static Pattern RELOP_TERMINALS = Pattern.compile("gt|lt|eq");
     // Useful Patterns
-
     static Pattern NUMPAT = Pattern.compile("-?\\d+"); // ("-?(0|[1-9][0-9]*)");
     static Pattern OPENPAREN = Pattern.compile("\\(");
     static Pattern CLOSEPAREN = Pattern.compile("\\)");
@@ -100,9 +101,77 @@ public class Parser {
      */
     static RobotProgramNode parseProgram(Scanner s) {
         RobotProgramNode robotProgramNode;
+        PROG program = new PROG()
+        while (s.hasNext()) {
+            program.addStatement(parseStatement(s));
+        }
         if (!s.hasNext()) { return null; }
         return null;
     }
+
+    private static STMT parseStatement(Scanner scan) {
+        STMT statement = null;
+        if (scan.hasNext(ACT_TERMINALS)) { return parseAction(scan); }
+        else if (scan.hasNext(LOOP_TERMINAL)) { return parseLoop(scan); }
+        else if (scan.hasNext(IF_ENTRY_TERMINAL)) { return parseIf(scan); }
+        else if (scan.hasNext(WHILE_TERMINAL)) { return parseWhile(scan); }
+        else if (scan.hasNext(ASS)) { return parseIf(scan); }
+    }
+
+    private static LOOP parseLoop(Scanner scan) {
+        return null;
+    }
+
+    private static IF parseIf(Scanner scan) {
+        return null;
+    }
+
+    private static WHILE parseWhile(Scanner scan) {
+        return null;
+    }
+
+    private static ASSGN parseAssign(Scanner scan) {
+        return null;
+    }
+
+    private static BLOCK parseBlock(Scanner scan) {
+        return null;
+    }
+
+    private static ACT parseAction(Scanner scan) {
+        return null;
+    }
+
+    private static EXP parseExpression(Scanner scan) {
+        return null;
+    }
+
+    private static SEN parseSensor(Scanner scan) {
+        return null;
+    }
+
+    private static OP parseOperation(Scanner scan) {
+        return null;
+    }
+
+    private static COND parseCondition(Scanner scan) {
+        return null;
+    }
+
+    private static RELOP parseRelationalOperator(Scanner scan) {
+        return null;
+    }
+
+    private static VAR parseVariable(Scanner scan) {
+        return null;
+    }
+
+    private static NUM parseNumber(Scanner scan) {
+        return null;
+    }
+
+
+
 
     // utility methods for the parser
 

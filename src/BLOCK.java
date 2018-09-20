@@ -1,4 +1,4 @@
-public class VAR extends EXP{
+public class BLOCK implements RobotProgramNode{
     @Override
     public void execute(Robot robot) {
 

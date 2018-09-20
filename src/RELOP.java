@@ -1,4 +1,4 @@
-public class RELOP implements RobotProgramNode{
+public class RELOP extends COND{
     @Override
     public void execute(Robot robot) {
 
