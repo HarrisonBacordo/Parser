@@ -1,6 +1,3 @@
-public class EXP implements RobotProgramNode{
-    @Override
-    public void execute(Robot robot) {
+public abstract class EXP implements RobotProgramNode {
 
-    }
 }

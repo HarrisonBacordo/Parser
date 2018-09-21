@@ -87,6 +87,7 @@ public class Parser {
     private static Pattern SEN_TERMINALS = Pattern.compile("fuelLeft|oppLR|oppFB|numBarrels|barrelLR|barrelFB|wallDist");
     private static Pattern OP_TERMINALS = Pattern.compile("add|sub|mul|div");
     private static Pattern RELOP_TERMINALS = Pattern.compile("gt|lt|eq");
+    private static Pattern COND_TERMINALS = Pattern.compile("and|or|not");
     // Useful Patterns
     static Pattern NUMPAT = Pattern.compile("-?\\d+"); // ("-?(0|[1-9][0-9]*)");
     static Pattern OPENPAREN = Pattern.compile("\\(");
@@ -130,12 +131,38 @@ public class Parser {
     private static IF parseIf(Scanner scan) {
         require(IF_ENTRY_TERMINAL, "Incorrect terminal; IF should be \"if\"", scan);
         require(OPENPAREN, "Missing open parenthesis", scan);
+        COND cond = null;
+        if (scan.hasNext(RELOP_TERMINALS) || scan.hasNext(COND_TERMINALS)) {
+            cond = parseCondition(scan);
+        } else {
+            fail("Expected condition", scan);
+        }
+        require(CLOSEPAREN, "Missing close parenthesis", scan);
 
-        return null;
+        BLOCK ifBlock = parseBlock(scan);
+        if (checkFor(IF_INTERMEDIATE_TERMINALS, scan)) {
+            BLOCK elseBlock = parseBlock(scan);
+            return new IF(cond, ifBlock, elseBlock);
+        }
+        return new IF(cond, ifBlock);
     }
 
     private static WHILE parseWhile(Scanner scan) {
-        return null;
+        require(WHILE_TERMINAL, "Incorrect terminal; WHILE should be \"while\"", scan);
+        require(OPENPAREN, "Missing open parenthesis", scan);
+//        cond
+        COND cond = null;
+        if (scan.hasNext(RELOP_TERMINALS) || scan.hasNext(COND_TERMINALS)) {
+            cond = parseCondition(scan);
+        } else {
+            fail("Expected condition", scan);
+        }
+        require(CLOSEPAREN, "Missing close parenthesis", scan);
+
+//        block
+        BLOCK block = parseBlock(scan);
+
+        return new WHILE(cond, block);
     }
 
     private static ASSGN parseAssign(Scanner scan) {
@@ -192,23 +219,148 @@ public class Parser {
     }
 
     private static EXP parseExpression(Scanner scan) {
+        if (scan.hasNext(OP_TERMINALS)) {
+            return parseOperator(scan);
+        } else if(scan.hasNext(NUMPAT)) {
+            return new NUM(requireInt(NUMPAT, "Int required", scan));
+        } else if(scan.hasNext(SEN_TERMINALS)){
+            return parseSensor(scan);
+        }
+        fail("Incorrect grammar for expression", scan);
         return null;
+    }
+
+    private static OP parseOperator(Scanner scan) {
+        OP op = null;
+        EXP exp1;
+        EXP exp2;
+        switch (scan.next()) {
+            case "add":
+                require(OPENPAREN, "Missing open parenthesis", scan);
+                exp1 = parseExpression(scan);
+                require(",", "missing \",\"", scan);
+                exp2 = parseExpression(scan);
+                op = new ADD(exp1, exp2);
+                break;
+            case "sub":
+                require(OPENPAREN, "Missing open parenthesis", scan);
+                exp1 = parseExpression(scan);
+                require(",", "missing \",\"", scan);
+                exp2 = parseExpression(scan);
+                op = new SUB(exp1, exp2);
+                break;
+            case "mul":
+                require(OPENPAREN, "Missing open parenthesis", scan);
+                exp1 = parseExpression(scan);
+                require(",", "missing \",\"", scan);
+                exp2 = parseExpression(scan);
+                op = new MUL(exp1, exp2);
+                break;
+            case "div":
+                require(OPENPAREN, "Missing open parenthesis", scan);
+                exp1 = parseExpression(scan);
+                require(",", "missing \",\"", scan);
+                exp2 = parseExpression(scan);
+                op = new DIV(exp1, exp2);
+                break;
+            default:
+                fail("Incorrect EXP grammar: ", scan);
+        }
+        require(CLOSEPAREN, "Missing close parenthesis", scan);
+        return op;
     }
 
     private static SEN parseSensor(Scanner scan) {
-        return null;
-    }
+        if(scan.hasNext(SEN_TERMINALS)){
+            String s = scan.next();
+            switch (s){
+                case "fuelLeft":
+                    return new FUEL_LEFT();
 
-    private static OP parseOperation(Scanner scan) {
+                case "oppLR":
+                    return new OPP_LR();
+
+                case "oppFB":
+                    return new OPP_FB();
+
+                case "numBarrels":
+                    return new NUM_BARRELS();
+
+                case "barrelLR":
+                    return new BARREL_LR();
+
+                case "barrelFB":
+                    return new BARREL_FB();
+
+                case "wallDist":
+                    return new WALL_DIST();
+                default:
+                    fail("Incorrect grammar for SEN", scan);
+                    return null;
+            }
+
+        }
+        fail("Not a valid Sensor", scan);
         return null;
     }
 
     private static COND parseCondition(Scanner scan) {
-        return null;
-    }
-
-    private static RELOP parseRelationalOperator(Scanner scan) {
-        return null;
+        COND cond = null;
+        if (scan.hasNext(RELOP_TERMINALS)) {
+            EXP exp1;
+            EXP exp2;
+            switch (scan.next()) {
+                case "lt":
+                    require(OPENPAREN, "Missing open parenthesis", scan);
+                    exp1 = parseExpression(scan);
+                    require(",", "missing \",\"", scan);
+                    exp2 = parseExpression(scan);
+                    cond = new COND(COND.RelOp.LT, exp1, exp2);
+                    break;
+                case "gt":
+                    require(OPENPAREN, "Missing open parenthesis", scan);
+                    exp1 = parseExpression(scan);
+                    require(",", "missing \",\"", scan);
+                    exp2 = parseExpression(scan);
+                    cond = new COND(COND.RelOp.LT, exp1, exp2);
+                    break;
+                case "eq":
+                    require(OPENPAREN, "Missing open parenthesis", scan);
+                    exp1 = parseExpression(scan);
+                    require(",", "missing \",\"", scan);
+                    exp2 = parseExpression(scan);
+                    cond = new COND(COND.RelOp.LT, exp1, exp2);
+                    break;
+                default:
+                    fail("Incorrect grammar for COND: ", scan);
+            }
+        } else if (scan.hasNext(COND_TERMINALS)) {
+            COND cond1;
+            COND cond2;
+            switch (scan.next()) {
+                case "and":
+                    require(OPENPAREN, "Missing open parenthesis", scan);
+                    cond1 = parseCondition(scan);
+                    cond2 = parseCondition(scan);
+                    cond = new COND(COND.CondOp.AND, cond1, cond2);
+                    break;
+                case "or":
+                    require(OPENPAREN, "Missing open parenthesis", scan);
+                    cond1 = parseCondition(scan);
+                    cond2 = parseCondition(scan);
+                    cond = new COND(COND.CondOp.OR, cond1, cond2);
+                    break;
+                case "not":
+                    require(OPENPAREN, "Missing open parenthesis", scan);
+                    cond1 = parseCondition(scan);
+                    cond = new COND(COND.CondOp.NOT, cond1);
+                    break;
+                default:
+                    fail("Incorrect grammar for COND: ", scan);
+            }
+        }
+        require(CLOSEPAREN, "Missing close parenthesis", scan);
+        return cond;
     }
 
     private static VAR parseVariable(Scanner scan) {
@@ -216,7 +368,7 @@ public class Parser {
     }
 
     private static NUM parseNumber(Scanner scan) {
-        return null;
+        return new NUM(requireInt(NUMPAT, "Missing int", scan));
     }
 
 
