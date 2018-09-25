@@ -9,4 +9,9 @@ public class NUM extends EXP{
     public void execute(Robot robot) {
 
     }
+
+    @Override
+    public int evaluate(Robot robot) {
+        return this.num;
+    }
 }

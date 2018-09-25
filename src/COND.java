@@ -28,7 +28,32 @@ public class COND implements RobotProgramNode{
 
     @Override
     public void execute(Robot robot) {
+    }
 
+    public boolean evaluate(Robot robot) {
+        if (this.condOp != null) {
+            switch (condOp) {
+                case AND:
+                    return (this.cond1.evaluate(robot) && this.cond2.evaluate(robot));
+                case OR:
+                    return (this.cond1.evaluate(robot) || this.cond2.evaluate(robot));
+                case NOT:
+                    return !this.cond1.evaluate(robot);
+                default:
+                    break;
+            }
+        } else {
+            switch (this.relop) {
+                case EQ:
+                    return this.exp1.evaluate(robot) == this.exp2.evaluate(robot);
+                case GT:
+                    return this.exp1.evaluate(robot) > this.exp2.evaluate(robot);
+                case LT:
+                    return this.exp1.evaluate(robot) < this.exp2.evaluate(robot);
+
+            }
+        }
+        return false;
     }
 
     public enum CondOp {

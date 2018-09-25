@@ -6,6 +6,7 @@ public class IF extends STMT{
     public IF(COND condition, BLOCK ifBlock) {
         this.condition = condition;
         this.ifBlock = ifBlock;
+        this.elseBlock = null;
     }
 
     public IF(COND condition, BLOCK ifBlock, BLOCK elseBlock) {
@@ -16,6 +17,10 @@ public class IF extends STMT{
 
     @Override
     public void execute(Robot robot) {
-
+        if(condition.evaluate(robot)) {
+            this.ifBlock.execute(robot);
+        } else if(elseBlock != null) {
+            this.elseBlock.execute(robot);
+        }
     }
 }

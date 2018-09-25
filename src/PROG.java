@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PROG implements  RobotProgramNode{
-    List<STMT> statements;
+    private List<STMT> statements;
 
     public PROG() {
         this.statements = new ArrayList<>();
@@ -14,6 +14,8 @@ public class PROG implements  RobotProgramNode{
 
     @Override
     public void execute(Robot robot) {
-
+        for (STMT stmt : this.statements) {
+            stmt.execute(robot);
+        }
     }
 }

@@ -213,6 +213,16 @@ public class Parser {
                 } else {
                     action = new WAIT();
                 }
+                break;
+            case "shieldOn":
+                action = new SHIELD_ON();
+                break;
+            case "shieldOff":
+                action = new SHIELD_OFF();
+                break;
+            case "turnAround":
+                action = new TURN_AROUND();
+                break;
         }
         require(SEMICOLON, "Missing semicolon", scan);
         return action;
@@ -221,9 +231,9 @@ public class Parser {
     private static EXP parseExpression(Scanner scan) {
         if (scan.hasNext(OP_TERMINALS)) {
             return parseOperator(scan);
-        } else if(scan.hasNext(NUMPAT)) {
+        } else if (scan.hasNext(NUMPAT)) {
             return new NUM(requireInt(NUMPAT, "Int required", scan));
-        } else if(scan.hasNext(SEN_TERMINALS)){
+        } else if (scan.hasNext(SEN_TERMINALS)) {
             return parseSensor(scan);
         }
         fail("Incorrect grammar for expression", scan);
@@ -271,9 +281,9 @@ public class Parser {
     }
 
     private static SEN parseSensor(Scanner scan) {
-        if(scan.hasNext(SEN_TERMINALS)){
+        if (scan.hasNext(SEN_TERMINALS)) {
             String s = scan.next();
-            switch (s){
+            switch (s) {
                 case "fuelLeft":
                     return new FUEL_LEFT();
 
@@ -287,9 +297,19 @@ public class Parser {
                     return new NUM_BARRELS();
 
                 case "barrelLR":
+                    if (checkFor(OPENPAREN, scan)) {
+                        EXP exp = parseExpression(scan);
+                        require(CLOSEPAREN, "Missing close parenthesis", scan);
+                        return new BARREL_LR(exp);
+                    }
                     return new BARREL_LR();
 
                 case "barrelFB":
+                    if (checkFor(OPENPAREN, scan)) {
+                        EXP exp = parseExpression(scan);
+                        require(CLOSEPAREN, "Missing close parenthesis", scan);
+                        return new BARREL_FB(exp);
+                    }
                     return new BARREL_FB();
 
                 case "wallDist":
@@ -322,14 +342,14 @@ public class Parser {
                     exp1 = parseExpression(scan);
                     require(",", "missing \",\"", scan);
                     exp2 = parseExpression(scan);
-                    cond = new COND(COND.RelOp.LT, exp1, exp2);
+                    cond = new COND(COND.RelOp.GT, exp1, exp2);
                     break;
                 case "eq":
                     require(OPENPAREN, "Missing open parenthesis", scan);
                     exp1 = parseExpression(scan);
                     require(",", "missing \",\"", scan);
                     exp2 = parseExpression(scan);
-                    cond = new COND(COND.RelOp.LT, exp1, exp2);
+                    cond = new COND(COND.RelOp.EQ, exp1, exp2);
                     break;
                 default:
                     fail("Incorrect grammar for COND: ", scan);
@@ -341,12 +361,14 @@ public class Parser {
                 case "and":
                     require(OPENPAREN, "Missing open parenthesis", scan);
                     cond1 = parseCondition(scan);
+                    require(",", "missing \",\"", scan);
                     cond2 = parseCondition(scan);
                     cond = new COND(COND.CondOp.AND, cond1, cond2);
                     break;
                 case "or":
                     require(OPENPAREN, "Missing open parenthesis", scan);
                     cond1 = parseCondition(scan);
+                    require(",", "missing \",\"", scan);
                     cond2 = parseCondition(scan);
                     cond = new COND(COND.CondOp.OR, cond1, cond2);
                     break;

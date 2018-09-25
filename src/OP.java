@@ -1,6 +1,6 @@
 public abstract class OP extends EXP {
-    private EXP exp1;
-    private EXP exp2;
+    protected EXP exp1;
+    protected EXP exp2;
 
     public OP(EXP exp1, EXP exp2) {
         this.exp1 = exp1;
@@ -16,7 +16,11 @@ class ADD extends OP {
 
     @Override
     public void execute(Robot robot) {
+    }
 
+    @Override
+    public int evaluate(Robot robot) {
+        return this.exp1.evaluate(robot) + this.exp2.evaluate(robot);
     }
 }
 
@@ -30,6 +34,11 @@ class SUB extends OP {
     public void execute(Robot robot) {
 
     }
+
+    @Override
+    public int evaluate(Robot robot) {
+        return this.exp1.evaluate(robot) - this.exp2.evaluate(robot);
+    }
 }
 
 class MUL extends OP {
@@ -42,6 +51,11 @@ class MUL extends OP {
     public void execute(Robot robot) {
 
     }
+
+    @Override
+    public int evaluate(Robot robot) {
+        return this.exp1.evaluate(robot) * this.exp2.evaluate(robot);
+    }
 }
 
 class DIV extends OP {
@@ -53,5 +67,10 @@ class DIV extends OP {
     @Override
     public void execute(Robot robot) {
 
+    }
+
+    @Override
+    public int evaluate(Robot robot) {
+        return this.exp1.evaluate(robot) / this.exp2.evaluate(robot);
     }
 }

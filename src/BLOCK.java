@@ -1,14 +1,16 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class BLOCK implements RobotProgramNode{
+public class BLOCK implements RobotProgramNode {
     private List<STMT> statements;
 
     public BLOCK() {
         this.statements = new ArrayList<>();
     }
 
-    public List getStatements() { return this.statements; }
+    public List getStatements() {
+        return this.statements;
+    }
 
 
     public void addStatement(STMT statement) {
@@ -17,6 +19,8 @@ public class BLOCK implements RobotProgramNode{
 
     @Override
     public void execute(Robot robot) {
-
+        for (STMT stmt : this.statements) {
+            stmt.execute(robot);
+        }
     }
 }

@@ -7,6 +7,8 @@ public class LOOP extends STMT{
 
     @Override
     public void execute(Robot robot) {
-
+        while(true) {
+            this.loopBlock.execute(robot);
+        }
     }
 }
